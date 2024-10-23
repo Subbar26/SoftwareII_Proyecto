@@ -1,113 +1,140 @@
 import React, { useState } from 'react';
+import Navbar from '../components/Navbar';
 import '../assets/SucursalDashboard.css'; 
-import Navbar from '../components/Navbar'; 
+
+const productosDisponibles = [
+  { id: 1, nombre: 'Producto A', precio: 100 },
+  { id: 2, nombre: 'Producto B', precio: 200 },
+  { id: 3, nombre: 'Producto C', precio: 300 },
+  // Agrega más productos si es necesario
+];
 
 function Sucursal() {
-  const [showVentas, setShowVentas] = useState(false);
-  const [showRegistro, setShowRegistro] = useState(false);
-  const [ventas, setVentas] = useState([]);
+  const [carrito, setCarrito] = useState([]);
 
-  // Función para manejar el registro de una nueva venta
-  const handleRegistrarVenta = (e) => {
-    e.preventDefault();
-    const nuevaVenta = {
-      id: ventas.length + 1,
-      nombreCliente: e.target.nombreCliente.value,
-      producto: e.target.producto.value,
-      unidades: e.target.unidades.value,
-      fechaVenta: e.target.fechaVenta.value,
-      metodoPago: e.target.metodoPago.value,
-      precioUnitario: e.target.precioUnitario.value,
-    };
+  // Función para añadir un producto al carrito
+  const agregarAlCarrito = (producto) => {
+    const productoEnCarrito = carrito.find((item) => item.id === producto.id);
+    if (productoEnCarrito) {
+      setCarrito(
+        carrito.map((item) =>
+          item.id === producto.id ? { ...item, cantidad: item.cantidad + 1 } : item
+        )
+      );
+    } else {
+      setCarrito([...carrito, { ...producto, cantidad: 1 }]);
+    }
+  };
 
-    setVentas([...ventas, nuevaVenta]);
-    setShowRegistro(false); // Oculta el formulario después del registro
+  // Función para ajustar la cantidad de un producto en el carrito
+  const ajustarCantidad = (productoId, nuevaCantidad) => {
+    if (nuevaCantidad <= 0) {
+      eliminarDelCarrito(productoId);
+    } else {
+      setCarrito(
+        carrito.map((item) =>
+          item.id === productoId ? { ...item, cantidad: nuevaCantidad } : item
+        )
+      );
+    }
+  };
+
+  // Función para eliminar un producto del carrito
+  const eliminarDelCarrito = (productoId) => {
+    setCarrito(carrito.filter((item) => item.id !== productoId));
+  };
+
+  // Función para manejar la compra
+  const manejarCompra = () => {
+    alert('Compra realizada con éxito');
+    setCarrito([]); // Limpiar el carrito después de la compra
+  };
+
+  // Función para cancelar la compra
+  const cancelarCompra = () => {
+    setCarrito([]); // Limpiar el carrito
   };
 
   return (
-    
     <div className="sucursal-page">
-        <Navbar />
+      <Navbar /> {/* Navbar en la parte superior */}
       <h1>Sucursal</h1>
 
-      <div className="button-group">
-        <button className="btn btn-primary custom-btn" onClick={() => setShowVentas(!showVentas)}>Consultar Ventas</button> &nbsp;
-        <button className="btn btn-primary custom-btn" onClick={() => setShowRegistro(!showRegistro)}>Registrar Ventas</button> &nbsp;
-        <button className="btn btn-primary custom-btn" onClick={() => alert("Funcionalidad en desarrollo...")}>Generar Informe</button>
+      {/* Tabla de productos disponibles */}
+      <div className="productos-disponibles">
+        <h2>Productos Disponibles</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Precio</th>
+              <th>Añadir al Carrito</th>
+            </tr>
+          </thead>
+          <tbody>
+            {productosDisponibles.map((producto) => (
+              <tr key={producto.id}>
+                <td>{producto.nombre}</td>
+                <td>${producto.precio}</td>
+                <td>
+                  <button className="btn btn-primary custom-btn" onClick={() => agregarAlCarrito(producto)}>Añadir</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      {/* Tabla de ventas registradas */}
-      {showVentas && (
-        <div className="ventas-table">
-          <h2>Ventas Registradas</h2>
+      {/* Carrito de compras */}
+      <div className="carrito-compras">
+        <h2>Carrito de Compras</h2>
+        {carrito.length === 0 ? (
+          <p>El carrito está vacío</p>
+        ) : (
           <table>
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Cliente</th>
                 <th>Producto</th>
-                <th>Unidades</th>
-                <th>Fecha</th>
-                <th>Método de Pago</th>
-                <th>Precio Unitario</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {ventas.map((venta) => (
-                <tr key={venta.id}>
-                  <td>{venta.id}</td>
-                  <td>{venta.nombreCliente}</td>
-                  <td>{venta.producto}</td>
-                  <td>{venta.unidades}</td>
-                  <td>{venta.fechaVenta}</td>
-                  <td>{venta.metodoPago}</td>
-                  <td>{venta.precioUnitario}</td>
+              {carrito.map((item) => (
+                <tr key={item.id}>
+                  <td>{item.nombre}</td>
+                  <td>${item.precio}</td>
+                  <td>
+                    <input
+                      type="number"
+                      value={item.cantidad}
+                      onChange={(e) => ajustarCantidad(item.id, parseInt(e.target.value))}
+                      min="1"
+                    />
+                  </td>
+                  <td>${item.precio * item.cantidad}</td>
+                  <td>
+                    <button className="btn btn-danger" onClick={() => eliminarDelCarrito(item.id)}>Eliminar</button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        )}
+        <div className="acciones-carrito">
+          <button className="btn btn-success" onClick={manejarCompra} disabled={carrito.length === 0}>
+            Comprar
+          </button>&nbsp;
+          <button className="btn btn-warning" onClick={cancelarCompra} disabled={carrito.length === 0}>
+            Cancelar Compra
+          </button>
         </div>
-      )}
-
-      {/* Formulario para registrar una nueva venta */}
-      {showRegistro && (
-        <div className="registro-form">
-          <h2>Registrar Nueva Venta</h2>
-          <form onSubmit={handleRegistrarVenta}>
-            <div>
-              <label>Nombre del Cliente:</label>
-              <input type="text" name="nombreCliente" required />
-            </div>
-            <div>
-              <label>Producto:</label>
-              <input type="text" name="producto" required />
-            </div>
-            <div>
-              <label>Unidades:</label>
-              <input type="number" name="unidades" required />
-            </div>
-            <div>
-              <label>Fecha de Venta:</label>
-              <input type="date" name="fechaVenta" required />
-            </div>
-            <div>
-              <label>Método de Pago:</label>
-              <select name="metodoPago" required>
-                <option value="Efectivo">Efectivo</option>
-                <option value="Tarjeta">Tarjeta</option>
-                <option value="Transferencia">Transferencia</option>
-              </select>
-            </div>
-            <div>
-              <label>Precio Unitario:</label>
-              <input type="number" name="precioUnitario" required />
-            </div>
-            <button type="submit">Registrar Venta</button>
-          </form>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
 
 export default Sucursal;
+
