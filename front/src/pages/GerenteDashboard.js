@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
-import '../assets/GerenciaDashboard.css'; 
+import '../assets/GerenteDashboard.css'; 
 
 function Gerencia() {
   const [showVentas, setShowVentas] = useState(false);
