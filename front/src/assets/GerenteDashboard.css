@@ -1,4 +1,3 @@
-/* ClubDashboard.css */
 
 /* Estilos generales */
 .container {
@@ -74,7 +73,6 @@ h1, h2, h3 {
   box-shadow: 0 0 0 0.2rem rgba(255, 235, 59, 0.5);
 }
 
-/* Estilos para tarjetas de eventos */
 .list-group-item {
   background-color: #fff;
   border: 1px solid #ddd;
