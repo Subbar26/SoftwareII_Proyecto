@@ -1,9 +1,10 @@
 //import logo from './logo.svg';
-import './App.css';
 import React, { Fragment } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import LoginForm from './pages/LoginForm';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import './App.css';
 import GerenteDashboard from './pages/GerenteDashboard';
+import LoginForm from './pages/LoginForm';
+import Logout from './pages/Logout';
 import SucursalDashboard from './pages/SucursalDashboard';
 function App() {
   return(
@@ -13,6 +14,7 @@ function App() {
           <Route path='/' exact element={<LoginForm/>}/>
           <Route path='/gerencia' exact element={<GerenteDashboard/>}/>
           <Route path='/sucursal' exact element={<SucursalDashboard/>}/>
+          <Route path="/logout" element={<Logout />} />
         </Routes>
       </Router>
     </Fragment>
