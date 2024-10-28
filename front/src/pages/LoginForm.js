@@ -1,20 +1,33 @@
+import axios from 'axios';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; 
-import Navbar from '../components/Navbar'; 
+import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
 
 function LoginForm() {
-  const [correoElectronico, setCorreoElectronico] = useState('');
+  const [username, setUsername] = useState(''); // Cambiado a nombre de usuario
   const [contrasena, setContrasena] = useState('');
-  const [user, setUser] = useState('gerencia'); // Iniciar con un valor predeterminado
+  const [loginError, setLoginError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    e.preventDefault(); // Evitar el comportamiento por defecto del formulario
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-    if (user === "gerencia") {
-      navigate("/gerencia");
-    } else {
+    try {
+      const response = await axios.post('http://localhost:8080/auth/login', {
+        username: username,  // Usamos el nombre de usuario en lugar de correo
+        password: contrasena
+      });
+
+      const { token, id } = response.data;
+      // Guarda el token y el id en el almacenamiento local
+      localStorage.setItem('token', token);
+      localStorage.setItem('userId', id);
+
+      // Redirige siempre a /sucursal porque el rol es CLIENTE
       navigate("/sucursal");
+    } catch (error) {
+      setLoginError('Nombre de usuario o contraseña incorrectos');
+      console.error('Error:', error);
     }
   };
 
@@ -23,13 +36,14 @@ function LoginForm() {
       <Navbar />
       <form onSubmit={handleLogin} className="form">
         <h2>Login</h2>
+        {loginError && <p style={{ color: 'red' }}>{loginError}</p>}
         <div>
-          <label>Correo electrónico:</label>
+          <label>Nombre de Usuario:</label>
           <input
-            type="email"
-            name="correo_electronico"
-            value={"aaa@gmail.com"}//correoElectronico}
-            onChange={(e) => setCorreoElectronico(e.target.value)}
+            type="text"
+            name="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
           />
         </div>
@@ -38,20 +52,10 @@ function LoginForm() {
           <input
             type="password"
             name="contrasena"
-            value={"123"}//contrasena}
+            value={contrasena}
             onChange={(e) => setContrasena(e.target.value)}
             required
           />
-        </div>
-        <div>
-          <label>Tipo de Usuario:</label>
-          <select
-            value={user}
-            onChange={(e) => setUser(e.target.value)} // Actualizar el estado cuando se seleccione una opción
-          >
-            <option value="gerencia">Gerencia</option>
-            <option value="sucursal">Sucursal</option>
-          </select>
         </div>
         <button type="submit" className="btn btn-primary">Login</button>
       </form>
@@ -60,4 +64,3 @@ function LoginForm() {
 }
 
 export default LoginForm;
-
